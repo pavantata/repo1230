@@ -16,6 +16,7 @@ package com.adr;
      	// NOTE: If the Adr Service has already been started,
      	// this will not do anything. The Android takes care
      	// of handling this case.
+
      	context.startService(new Intent(context, Adr.class));
          }
      }

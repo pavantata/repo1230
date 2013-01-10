@@ -15,6 +15,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.util.Log;
+import android.webkit.WebView.FindListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adr.resources.AccelerationMeasure;
@@ -42,13 +45,15 @@ class Update extends TimerTask {
  * calculating the phone's position and giving it to other apps that request it.
  */
 public class Adr extends Service implements AdrInterface {
+	boolean inital = true;
+	TextView largeText = null;
 	public void onCreate() {
 		this.nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		showNotifications();
 
 		this.toast = Toast.makeText(this, "Service started", 0);
 		this.toast.show();
-
+		
 		this.lastLocation = new Location("");
 
 		// -- water fountain EBW1
@@ -100,24 +105,31 @@ public class Adr extends Service implements AdrInterface {
 		this.strideLengthAverage = this.strideLength.getStrideLength();
 
 		Location location = this.position.getLocation();
+		
 		try {
-			if (lastLocation != null && location != null) {
+			if(location == null)
+				Log.e("apativedr", "location is null");
+			else
+				Log.e("apativedr", location.toString());
+			Log.e("adpativedr", "inside try");
+			if (lastLocation != null && location != null ) {
 				float dist = lastLocation.distanceTo(location);
-
+				Log.e("MyApp", "Inside Location");
 				this.accuracy = location.getAccuracy();
-
+				inital = false;
 				Adr.addOutput("accuracy: " + accuracy);
 				Adr.addOutput("gps override: " + this.usingGpsOverride);
 
-				if (accuracy <= 6 && this.position.getUpdated()
-						&& this.usingGpsOverride)
+//				if (accuracy <= 100 && this.position.getUpdated()
+//						&& this.usingGpsOverride)
 					this.usingGps = true;
-				else
-					this.usingGps = false;
+//				else
+//					this.usingGps = false;
 				// -- GPS AVAILABLE AND ACCURATE
-				if (this.stepCountWindow > 0
-						&& Float.compare(dist, this.stepCountWindow * 1.5f) < 0
-						&& this.usingGps) {
+				if (this.stepCountWindow > -1
+//						&& Float.compare(dist, this.stepCountWindow * 1.5f) < 0
+						&& this.usingGps && inital) {
+					Log.e("adaptivedr", "USING GPS");
 					this.distTotal += dist;
 					this.distWindow = dist;
 					this.strideLength.calculate(this.stepCountWindow, dist);
@@ -134,9 +146,13 @@ public class Adr extends Service implements AdrInterface {
 					Adr.addOutput("bearing: " + this.gpsAngle);
 				}
 				// -- GPS UNAVAILABLE OR INACCURATE
-				else if (this.stepCountWindow > 0) {
+				else if (this.stepCountWindow > -1) {
+					Log.e("else block", "before calling decide");
 					this.moving = this.movement.decide();
+//					moving = true;
+					Log.e("else block", "after calling decide");
 					if (moving == true) {
+						Log.e("adaptivedr", "USING CALCULATION");
 						Adr.addOutput("USING CALCULATION");
 						// location
 						this.distWindow = this.strideLengthAverage
@@ -196,7 +212,8 @@ public class Adr extends Service implements AdrInterface {
 		this.distWindow = 0;
 		this.data.restart(System.currentTimeMillis());
 		this.toast.setText(this.output);
-		this.toast.show();
+		this.toast.setDuration(5);
+//		this.toast.show();
 		this.clearOutput();
 	}
 

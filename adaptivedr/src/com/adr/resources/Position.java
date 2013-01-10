@@ -1,6 +1,7 @@
 package com.adr.resources;
   
   import android.location.Location;
+import android.util.Log;
   
   public class Position extends DataHandler
   {
@@ -10,6 +11,10 @@ package com.adr.resources;
  
      public void handleLocation(long time, Location location)
      {
+    	 if(location == null)
+				Log.e("apativedr", "location is null inside Position.handleLocation");
+			else
+				Log.e("apativedr", "location has value inside Position.handleLocation" + location.toString());
  	this.location = location;
  	this.updated = true;
      }

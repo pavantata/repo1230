@@ -1,24 +1,22 @@
 package com.adr.resources;
 
-import com.adr.resources.DataHandler;
-import com.adr.resources.Data;
-import com.adr.resources.LevelnessMeasure;
-import com.adr.resources.AccelerationMeasure;
-import com.adr.Adr;
-import com.adr.math.IndexSigmoid;
-import com.adr.math.IndexLine;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Scanner;
 
+import android.util.Log;
+
+import com.adr.Adr;
+import com.adr.math.IndexLine;
+import com.adr.math.IndexSigmoid;
+
+import edu.emory.mathcs.jtransforms.fft.FloatFFT_1D;
 // import org.neuroph.nnet.MultiLayerPerceptron;
 // import org.neuroph.core.learning.TrainingSet;
 // import org.neuroph.core.learning.TrainingElement;
 // import org.neuroph.core.learning.SupervisedTrainingElement;
 // import org.neuroph.util.TransferFunctionType;
 // 
-import edu.emory.mathcs.jtransforms.fft.FloatFFT_1D;
-
-import java.util.Scanner;
-import java.io.File;
-import java.io.FileWriter;
 
 public class Movement extends DataHandler {
 	public Movement(Data data) {
@@ -131,7 +129,9 @@ public class Movement extends DataHandler {
 
 	public boolean decide() {
 		float[] vals = this.getMax();
-
+		Log.e("decide()", this.getFreqIndex(vals[0]) + " " +
+				this.getAmpIndex(vals[1]) + " " +  this.getMeasureIndex() + " " +
+				this.getLevelnessIndex(vals[2]));
 		Adr.addOutput(vals[0] + " " + vals[1]);
 		if (this.getHighest(this.getFreqIndex(vals[0]),
 				this.getAmpIndex(vals[1]), this.getMeasureIndex(),
